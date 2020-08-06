@@ -5,6 +5,8 @@ The created shapefile can be added as a layer in a QGis project, showing marks o
 For more info run:
 photos2shapefile -h
 
+https://github.com/idnael/daniGIS
+
 20200806
 Why not store the exif times?
 Because shapefile don't support a datetime field, only Date, as discussed here: https://gis.stackexchange.com/questions/267413/storing-datetime-values-in-shapefiles-using-qgis

@@ -109,7 +109,7 @@ class Photos2Shapefile:
             metadata = pyexiv2.ImageMetadata(file)
             metadata.read()
 
-            dump_metadata(metadata)
+            #dump_metadata(metadata)
             
             if KEY_LAT in metadata.keys():
                 lat = to_degrees(metadata[KEY_LAT].value, metadata[KEY_LAT_REF].value == "N")        
