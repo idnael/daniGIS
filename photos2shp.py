@@ -114,7 +114,6 @@ class Photos2Shapefile:
                 if options.verbose:
                     print("%s: lon=%f, lat=%f, direction=%s" % (file, lon, lat, direc >=0 and str(direc) or "UNKNOWN"))
 
-                print("MRD ADD", file)
                 self.photos[file] = PhotoInfo(direc, [lon, lat])
 
                 self.total_points +=1
@@ -130,7 +129,6 @@ class Photos2Shapefile:
     def save(self):
         last_id = 0
         for file, photo in self.photos.items():
-            print("MRD",file)
             last_id +=1
             self.writer.record(id=last_id, path=file, filename=os.path.basename(file), direction=photo.direction)
             self.writer.point(* photo.point)

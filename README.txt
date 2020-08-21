@@ -1,9 +1,8 @@
+photos2shp
 Utility to create a shapefile from a collection of photos using gps position. Uses image direction if available on exif data.
-
 The created shapefile can be added as a layer in a QGis project, showing marks or arrows pointing in the direction the image was taken.
-
 For more info run:
-photos2shapefile -h
+photos2shp -h
 
 https://github.com/idnael/daniGIS
 
@@ -11,7 +10,3 @@ https://github.com/idnael/daniGIS
 Why not store the exif times?
 Because shapefile don't support a datetime field, only Date, as discussed here: https://gis.stackexchange.com/questions/267413/storing-datetime-values-in-shapefiles-using-qgis
 
-
-github que é isto?
-No releases published
-No packages published
