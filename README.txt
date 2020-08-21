@@ -11,3 +11,7 @@ https://github.com/idnael/daniGIS
 Why not store the exif times?
 Because shapefile don't support a datetime field, only Date, as discussed here: https://gis.stackexchange.com/questions/267413/storing-datetime-values-in-shapefiles-using-qgis
 
+
+github que é isto?
+No releases published
+No packages published
