@@ -10,3 +10,7 @@ https://github.com/idnael/daniGIS
 Why not store the exif times?
 Because shapefile don't support a datetime field, only Date, as discussed here: https://gis.stackexchange.com/questions/267413/storing-datetime-values-in-shapefiles-using-qgis
 
+My default camera app doesn't write the exif direction.
+Try OpenCamera instead!
+https://opencamera.org.uk/
+https://play.google.com/store/apps/details?id=net.sourceforge.opencamera

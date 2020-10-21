@@ -3,6 +3,8 @@
 
 # 202007 Daniel
 
+# 20200928 poderia usar o modulo generico osgeo.ogr em vez do shapefile?
+
 import codecs, math, shapefile, re, sys, glob, subprocess, os, shutil, random
 import pyexiv2
 from optparse import OptionParser
@@ -43,7 +45,7 @@ class PhotoInfo:
         self.point = point
 
 class Photos2Shapefile:
-    def __init__(self, shp_file, verbose=False):
+    def __init__(self, shp_file, verbose=False, append=True):
         self.verbose = verbose
         
         prj_file = os.path.splitext(shp_file)[0] + ".prj"
@@ -51,7 +53,7 @@ class Photos2Shapefile:
         # hash from path to PhotoInfo
         self.photos = {}
                 
-        if os.path.exists(shp_file):
+        if append and os.path.exists(shp_file):
             reader = shapefile.Reader(shp_file)
 
             field_names = [field[0] for field in reader.fields[1:]]
@@ -168,6 +170,7 @@ See example in photos2shp_qgi3_example.qgs!
 optparser = OptionParser(usage=USAGE)
 optparser.add_option("", "--out", help="Shapefile to create")
 optparser.add_option("-v", "--verbose", action="store_true")
+optparser.add_option("-a", "--add", action="store_true")
 (options, args) = optparser.parse_args()
 
 if not options.out:
@@ -176,7 +179,7 @@ if not options.out:
 if not options.out.lower().endswith(".shp"):
     optparser.error("out should have .shp extension")
 
-p2s = Photos2Shapefile(options.out, verbose=options.verbose)
+p2s = Photos2Shapefile(options.out, verbose=options.verbose, append=options.add)
 
 if args == ["-"]:
     for line in codecs.getwriter('utf-8')(sys.stdin).readlines():
