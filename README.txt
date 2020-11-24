@@ -14,3 +14,7 @@ My default camera app doesn't write the exif direction.
 Try OpenCamera instead!
 https://opencamera.org.uk/
 https://play.google.com/store/apps/details?id=net.sourceforge.opencamera
+
+
+DEPS
+sudo pip3 install pyshp
