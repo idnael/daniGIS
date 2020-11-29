@@ -101,7 +101,7 @@ if count ==0:
 
 
 # O order by é para garantir que os mais recentes ficam depois e portanto se sobrepoe na visualizcao no oruxmaps(?)
-cmd = ["ogr2ogr", "-f", "libkml", "-sql", "SELECT * from tmp ORDER BY date", options.out, tmp_shp]
+cmd = ["ogr2ogr", "-f", "libkml", "-sql", "SELECT * FROM tmp AS percursos ORDER BY date", options.out, tmp_shp]
 if subprocess.Popen(cmd).wait() != 0:
    print("Erro", cmd)
    sys.exit(2)
