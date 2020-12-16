@@ -5,7 +5,9 @@
 
 # 20200928 poderia usar o modulo generico osgeo.ogr em vez do shapefile?
 
-import codecs, math, shapefile, re, sys, glob, subprocess, os, shutil, random
+# TODO 20201215 how to find the reference def file? when writing it, use unicode?
+
+import codecs, math, shapefile, re, sys, glob, subprocess, os, shutil, random, traceback, datetime
 import pyexiv2
 from optparse import OptionParser
 
@@ -95,7 +97,9 @@ class Photos2Shapefile:
     def add_photo(self, file):
         try:
             metadata = pyexiv2.ImageMetadata(file)
+            
             metadata.read()
+            dump_metadata(metadata)
 
             if KEY_LAT in metadata.keys():
                 lat = to_degrees(metadata[KEY_LAT].value, metadata[KEY_LAT_REF].value == "N")        
@@ -126,6 +130,8 @@ class Photos2Shapefile:
         except:
             self.total_errors +=1
             # non fatal error
+
+            print("ERRO!!!", traceback.format_exc())
             print("Error reading %s: %s" % (file, sys.exc_info()[1]))
 
     def save(self):
@@ -140,6 +146,26 @@ class Photos2Shapefile:
         print("Added %i points, %i points with direction, %i errors" % (self.total_points, self.total_directions, self.total_errors))
 
 
+def create_layer_def(shapefile_path):
+    def_path = os.path.splitext(shapefile_path)[0] + ".__LAYER_DEF__.qlr"
+
+    # TODO find relative to __file__ ... but follow symlinks... ???
+    ref_file = "/home/daniel/comp/etc/daniGIS/photos2shp_layerreference.qlr"
+
+    with open(ref_file, "r") as fd:
+        xml = fd.read()
+
+    NAME = os.path.basename(shapefile_path)
+    ID = os.path.splitext(NAME)[0] + "_" + datetime.datetime.now().strftime("%Y%b%d_%H%M%S")
+    xml = xml.replace("TESTLAYER_ID", ID).replace("TESTLAYER_NAME", NAME).replace("TESTLAYER_PATH", shapefile_path)
+
+    print("Writing %s" % def_path)
+    
+    with open(def_path, "w") as fd:
+        fd.write(xml)
+    
+    
+    
 USAGE = """
 Get list of photo files, reads GPS EXIF info from each file, and creates a shapefile with exif info from photos. 
 If direction info is present in exif, store it in 'direction' field, degrees from north in clockwise direction, from 0 to 360. If direction is unknown, use -1.
@@ -159,6 +185,10 @@ $ photos2shp --out myphotos.shp 20200804-*.jpg
 Read files from stdin:
 $ find -name "*.jpg" | photos2shp --out morephotos.shp -
 
+You can then add the layer to your QGIS project by just importing the layer definition created
+that is the shapefile name with the .__LAYER_DEF__.qlr suffix.
+
+Or the difficult way:
 You can then add the created shapefile in QGIS, with arrows showing the image direction:
 Add the shapefile as a layer.
 In simbology, specify 'Rule Based' and add 2 rules:
@@ -189,3 +219,5 @@ else:
         p2s.add_photo(file)
 
 p2s.save()
+
+create_layer_def(options.out)
