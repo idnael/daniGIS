@@ -5,8 +5,6 @@
 
 # 20200928 poderia usar o modulo generico osgeo.ogr em vez do shapefile?
 
-# TODO 20201215 how to find the reference def file? when writing it, use unicode?
-
 import codecs, math, shapefile, re, sys, glob, subprocess, os, shutil, random, traceback, datetime
 import pyexiv2
 from optparse import OptionParser
@@ -149,8 +147,12 @@ class Photos2Shapefile:
 def create_layer_def(shapefile_path):
     def_path = os.path.splitext(shapefile_path)[0] + ".__LAYER_DEF__.qlr"
 
-    # TODO find relative to __file__ ... but follow symlinks... ???
-    ref_file = "/home/daniel/comp/etc/daniGIS/photos2shp_layerreference.qlr"
+    # TODO find relative to __file__ ... but follow symlinks...
+    bin_path = __file__
+    while os.path.islink(bin_path):
+        bin_path = os.path.join(os.path.dirname(bin_path), os.readlink(bin_path))
+    ref_file = os.path.join(os.path.dirname(bin_path), "photos2shp_layerreference.qlr")
+    print("Reading %s..." %ref_file)
 
     with open(ref_file, "r") as fd:
         xml = fd.read()
@@ -162,10 +164,11 @@ def create_layer_def(shapefile_path):
     print("Writing %s" % def_path)
     
     with open(def_path, "w") as fd:
+        # TODO use unicode??
         fd.write(xml)
     
     
-    
+
 USAGE = """
 Get list of photo files, reads GPS EXIF info from each file, and creates a shapefile with exif info from photos. 
 If direction info is present in exif, store it in 'direction' field, degrees from north in clockwise direction, from 0 to 360. If direction is unknown, use -1.
