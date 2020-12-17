@@ -1,0 +1,1 @@
+Installation: Requires pyshp and pyexiv2.

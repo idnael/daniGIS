@@ -20,11 +20,6 @@ KEY_LON_REF = "Exif.GPSInfo.GPSLongitudeRef"
 KEY_DIR = "Exif.GPSInfo.GPSImgDirection"
 KEY_DIR_REF = "Exif.GPSInfo.GPSImgDirectionRef"
 
-def shapefile_files(name):
-    if name.endswith(".shp"):
-        name = name[:-4]
-    return glob.glob(name+".*")
-
 def dump_metadata(metadata):
     for k in metadata.keys():
         print(" KEY",k)
@@ -71,8 +66,12 @@ class Photos2Shapefile:
                                 
             reader.close()
 
-        for f in shapefile_files(shp_file):
-            os.remove(f)
+        SHAPEFILE_EXTENSIONS = [".dbf", ".prj", ".shp", ".shx"]
+
+        for ext in SHAPEFILE_EXTENSIONS:
+            f = os.path.splitext(shp_file)[0] + ext
+            if os.path.exists(f):
+                os.remove(f)
             
         with open(prj_file, "w") as f:
             f.write(PROJECTION)
@@ -97,7 +96,7 @@ class Photos2Shapefile:
             metadata = pyexiv2.ImageMetadata(file)
             
             metadata.read()
-            dump_metadata(metadata)
+            #dump_metadata(metadata)
 
             if KEY_LAT in metadata.keys():
                 lat = to_degrees(metadata[KEY_LAT].value, metadata[KEY_LAT_REF].value == "N")        
@@ -145,14 +144,15 @@ class Photos2Shapefile:
 
 
 def create_layer_def(shapefile_path):
-    def_path = os.path.splitext(shapefile_path)[0] + ".__LAYER_DEF__.qlr"
+    DEF_EXTENSION = ".__LAYER_DEF__.qlr"
+    def_path = os.path.splitext(shapefile_path)[0] + DEF_EXTENSION
 
     # TODO find relative to __file__ ... but follow symlinks...
     bin_path = __file__
     while os.path.islink(bin_path):
         bin_path = os.path.join(os.path.dirname(bin_path), os.readlink(bin_path))
     ref_file = os.path.join(os.path.dirname(bin_path), "photos2shp_layerreference.qlr")
-    print("Reading %s..." %ref_file)
+    #print("Reading %s..." %ref_file)
 
     with open(ref_file, "r") as fd:
         xml = fd.read()
@@ -181,15 +181,14 @@ photos2shp --out photos.shp otherfolder/1.jpg
 cd otherfolder
 photos2shp --out photos.shp 1.jpg ## this will create duplicate file!
 
-Requires pyshp and pyexiv2.
-
 Example:
 $ photos2shp --out myphotos.shp 20200804-*.jpg
 Read files from stdin:
 $ find -name "*.jpg" | photos2shp --out morephotos.shp -
 
-You can then add the layer to your QGIS project by just importing the layer definition created
-that is the shapefile name with the .__LAYER_DEF__.qlr suffix.
+Adding as a QGis layer:
+You can then add the layer to your QGis project by just importing the layer definition file created, that is the shapefile name with the .__LAYER_DEF__.qlr suffix.
+You only need to do this once. To update an existing layer, just run photos2shp again, and reopen the QGis project.
 
 Or the difficult way:
 You can then add the created shapefile in QGIS, with arrows showing the image direction:
@@ -203,7 +202,8 @@ See example in photos2shp_qgi3_example.qgs!
 optparser = OptionParser(usage=USAGE)
 optparser.add_option("", "--out", help="Shapefile to create")
 optparser.add_option("-v", "--verbose", action="store_true")
-optparser.add_option("-a", "--add", action="store_true")
+optparser.add_option("-a", "--add", action="store_true", help="Add to existing shp")
+optparser.add_option("", "--nodef", action="store_true", help="Don't create QGis layer definition file")
 (options, args) = optparser.parse_args()
 
 if not options.out:
@@ -223,4 +223,5 @@ else:
 
 p2s.save()
 
-create_layer_def(options.out)
+if not options.nodef:
+    create_layer_def(options.out)
