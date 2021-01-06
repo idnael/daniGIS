@@ -30,7 +30,6 @@ def color_decay(date, options):
     now = datetime.datetime.now()
 
     days = (now - date).days
-    #print("days", days)
 
     A = math.pow(1 - DECAY1, -1/DAYS1)
 
