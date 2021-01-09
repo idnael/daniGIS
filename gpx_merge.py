@@ -29,13 +29,19 @@ def color_decay(date, options):
 
     now = datetime.datetime.now()
 
+    # age of the object
     days = (now - date).days
 
-    A = math.pow(1 - DECAY1, -1/DAYS1)
-
-    f = math.pow(A, - days)
-
-    rgb = [int(c1 + (c0 - c1)* f) for c0,c1 in zip(COLOR0, COLOR1)]
+    # color vai seguir uma exponencial negativa, começando em COLOR0, e convergindo para COLOR1
+    # A curva é controlada pelos parametros DAYS1 e DECAY1
+    # supondo que DECAY1 = 0.8 :
+    # Quando days=0, f0=1, f1=0, color vai ser COLOR0
+    # Quando days=DAYS1, f0=0.2, f1=0.8, o resultado ira estar DECAY1 do distancia entre COLOR0 e COLOR1
+    # Quando days = infinito => f0=0, f1=1  => color = COLOR1
+    f0 = math.pow(1 - DECAY1, days / DAYS1)
+    f1 = 1 - f0
+    
+    rgb = [int(f0 * c0 + f1 * c1) for c0,c1 in zip(COLOR0, COLOR1)]
     rgb = [max(0, min(c, 255)) for c in rgb]
 
     rgb_str = ("%02x%02x%02x" % (rgb[0], rgb[1], rgb[2])).upper()
