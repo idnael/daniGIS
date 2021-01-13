@@ -21,6 +21,7 @@ optparser.add_option("", "--decay", default="0.8")
 
 (options, args) = optparser.parse_args()
 
+# retorna par color, priority
 def color_decay(date, options):
     COLOR0 = ImageColor.getrgb("#"+options.color0)
     COLOR1 = ImageColor.getrgb("#"+options.color1)
@@ -45,7 +46,12 @@ def color_decay(date, options):
     rgb = [max(0, min(c, 255)) for c in rgb]
 
     rgb_str = ("%02x%02x%02x" % (rgb[0], rgb[1], rgb[2])).upper()
-    return rgb_str
+
+    # entre 40 e 50
+    # Se f0 for grande, prioridade maxima! Se f1 grande, menor prioridade    
+    priority = 50 - 10 * f1
+    
+    return rgb_str, priority
 
  
 if not options.out:
@@ -81,9 +87,9 @@ for inputfile in args:
    
    date = datetime.datetime.strptime(filename[0:8], DATE_FORMAT) 
 
-   color = color_decay(date, options)
-
-   style = "PEN(c:#%s,w:5px)" % color
+   color, priority = color_decay(date, options)
+   
+   style = "PEN(c:#%s,w:5px,l:%d)" % (color, priority)
 
    # se tentar fazer append para um kml, na segunda vez o resultado vai ficar vazio. Por isso estou a criar um shp, e no fim converto para kml!
    cmd = ["ogr2ogr", "-f", "ESRI Shapefile", "-update", "-append", tmp_shp, "-sql", "SELECT '%s' as SOURCE, '%s' AS OGR_STYLE, '%s' as DATE from tracks" % (filename, style, date), inputfile  ]
