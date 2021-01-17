@@ -40,8 +40,9 @@ class PhotoInfo:
         self.point = point
 
 class Photos2Shapefile:
-    def __init__(self, shp_file, verbose=False, append=True):
-        self.verbose = verbose
+    def __init__(self, shp_file, log_level=0, append=True):
+        self.log_level = log_level
+        self.shp_file = shp_file
         
         prj_file = os.path.splitext(shp_file)[0] + ".prj"
 
@@ -87,6 +88,7 @@ class Photos2Shapefile:
         self.total_directions = 0
         self.total_errors = 0
 
+        
     def error(self, msg):
         print(msg)
         sys.exit(1)
@@ -106,7 +108,7 @@ class Photos2Shapefile:
                     # I only know "M" which means the ref is magnetic north
                     if KEY_DIR_REF not in metadata.keys() or metadata[KEY_DIR_REF].value != 'M':
                         self.total_errors +=1
-                        print("%s: wrong value of %s" % (file, KEY_DIR_REF))
+                        if self.log_level >=1: print("%s: wrong value of %s" % (file, KEY_DIR_REF))
                         return
                     
                     self.total_directions += 1
@@ -114,7 +116,7 @@ class Photos2Shapefile:
                 else:
                     direc = -1
 
-                if options.verbose:
+                if self.log_level >=2:
                     print("%s: lon=%f, lat=%f, direction=%s" % (file, lon, lat, direc >=0 and str(direc) or "UNKNOWN"))
 
                 self.photos[file] = PhotoInfo(direc, [lon, lat])
@@ -122,14 +124,14 @@ class Photos2Shapefile:
                 self.total_points +=1
                                 
             else:
-                print("%s: no coords" % (file))
+                if self.log_level >=1: print("%s: no coords" % (file))
 
         except:
             self.total_errors +=1
             # non fatal error
 
-            print("ERRO!!!", traceback.format_exc())
-            print("Error reading %s: %s" % (file, sys.exc_info()[1]))
+            #print("ERRO!!!", traceback.format_exc())
+            if self.log_level >=1: print("Error reading %s: %s" % (file, sys.exc_info()[1]))
 
     def save(self):
         last_id = 0
@@ -140,7 +142,7 @@ class Photos2Shapefile:
             
         self.writer.close()
 
-        print("Added %i points, %i points with direction, %i errors" % (self.total_points, self.total_directions, self.total_errors))
+        print("Writing %s: Added %i points, %i points with direction, %i errors" % (self.shp_file, self.total_points, self.total_directions, self.total_errors))
 
 
 def create_layer_def(shapefile_path):
@@ -201,7 +203,7 @@ See example in photos2shp_qgi3_example.qgs!
 
 optparser = OptionParser(usage=USAGE)
 optparser.add_option("", "--out", help="Shapefile to create")
-optparser.add_option("-v", "--verbose", action="store_true")
+optparser.add_option("-l", "--log", type=int, help="log level. 0=only sum, 1=file errors ,2=all")
 optparser.add_option("-a", "--add", action="store_true", help="Add to existing shp")
 optparser.add_option("", "--nodef", action="store_true", help="Don't create QGis layer definition file")
 (options, args) = optparser.parse_args()
@@ -212,7 +214,7 @@ if not options.out:
 if not options.out.lower().endswith(".shp"):
     optparser.error("out should have .shp extension")
 
-p2s = Photos2Shapefile(options.out, verbose=options.verbose, append=options.add)
+p2s = Photos2Shapefile(options.out, log_level=options.log, append=options.add)
 
 if args == ["-"]:
     for line in codecs.getwriter('utf-8')(sys.stdin).readlines():
