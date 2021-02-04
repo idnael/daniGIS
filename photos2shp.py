@@ -203,7 +203,7 @@ See example in photos2shp_qgi3_example.qgs!
 
 optparser = OptionParser(usage=USAGE)
 optparser.add_option("", "--out", help="Shapefile to create")
-optparser.add_option("-l", "--log", type=int, help="log level. 0=only sum, 1=file errors ,2=all")
+optparser.add_option("-l", "--log", type=int, default=0, help="log level. 0=only sum, 1=file errors ,2=all")
 optparser.add_option("-a", "--add", action="store_true", help="Add to existing shp")
 optparser.add_option("", "--nodef", action="store_true", help="Don't create QGis layer definition file")
 (options, args) = optparser.parse_args()
