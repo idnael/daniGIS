@@ -1,0 +1,24 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+
+# The name which appears in the menu:
+Name=Foto Exif propagate
+
+#Name[cs]=
+#Name[fr]=
+#Name[de]=Vorlage
+
+# Replace "command" with the actual command or script:
+Exec=foto_exif_propagate %F
+
+
+
+# Change the following line to point to an icon of your choosing
+Icon=gtk-file
+
+
+# Desktop files that are usable only in Geeqie should be marked like this:
+Categories=X-Geeqie;
+OnlyShowIn=X-Geeqie;
+
