@@ -51,6 +51,7 @@ from optparse import OptionParser
 
 USAGE="Se tenho duas fotos tiradas no mesmo ponto (e direcao) mas uma tem informacao exif GPS (e direcao) e outra nao, uso este tool para propagar a informcao de uma para outra. Util por exemplo se tirar a mesma foto com telemovel e camera, ou ambas com telemovel, mas uma com uma app que nao regista a direcao mas tira fotos melhores nocturnas"
 optparser = OptionParser(usage=USAGE)
+optparser.add_option("-q", "--quiet", action="store_true")
 (options, args) = optparser.parse_args()
 
 #if len(args) < 2:
@@ -89,11 +90,12 @@ def propagate(wantedkeys, title):
         #answear = sys.stdin.readline()
         if True: ###answear.strip().lower() == "y":
             sys.stderr.write("Propagating %s from %s\n" % (title, args[source]))
-            for i in range(len(args)):
-                if i != source:
-                    for key in wantedkeys:
-                        metadata[i][key] = metadata[source][key].value
-                    metadata[i].write()
+            if not options.quiet:
+                for i in range(len(args)):
+                    if i != source:
+                        for key in wantedkeys:
+                            metadata[i][key] = metadata[source][key].value
+                        metadata[i].write()
 
 
 KEY_LAT = "Exif.GPSInfo.GPSLatitude"
